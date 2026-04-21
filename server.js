@@ -127,3 +127,41 @@ app.get("/analyze-deal", (req, res) => {
     }
   });
 });
+app.post("/profile", (req, res) => {
+  const {
+    name = "",
+    riskTolerance = "moderate",
+    availableCapital = 0,
+    investmentGoal = "growth",
+    timeHorizon = "medium",
+    preferredAssets = []
+  } = req.body;
+
+  const profile = {
+    name,
+    riskTolerance,
+    availableCapital,
+    investmentGoal,
+    timeHorizon,
+    preferredAssets
+  };
+
+  res.json({
+    message: "Profile created successfully",
+    profile
+  });
+});
+
+app.get("/profile", (req, res) => {
+  res.json({
+    message: "Use POST for /profile",
+    example: {
+      name: "Keena",
+      riskTolerance: "moderate",
+      availableCapital: 25000,
+      investmentGoal: "growth",
+      timeHorizon: "long",
+      preferredAssets: ["stocks", "real-estate"]
+    }
+  });
+});
