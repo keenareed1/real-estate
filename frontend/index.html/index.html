@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Fintech Engine</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0b1020;
+      color: #fff;
+      margin: 0;
+      padding: 40px;
+    }
+    .card {
+      max-width: 760px;
+      margin: 0 auto;
+      background: #151c33;
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.25);
+    }
+    h1 {
+      margin-top: 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    input, select, button, textarea {
+      width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #2c355a;
+      background: #0f1530;
+      color: #fff;
+      box-sizing: border-box;
+    }
+    button {
+      background: #3b82f6;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 16px;
+    }
+    pre {
+      background: #0f1530;
+      padding: 16px;
+      border-radius: 12px;
+      overflow: auto;
+      white-space: pre-wrap;
+    }
+    .full {
+      grid-column: 1 / -1;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>AI Fintech Engine</h1>
+    <p>Test your live full-analysis API.</p>
+
+    <div class="grid">
+      <div>
+        <label>Risk Tolerance</label>
+        <select id="riskTolerance">
+          <option value="low">low</option>
+          <option value="moderate" selected>moderate</option>
+          <option value="high">high</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Available Capital</label>
+        <input id="availableCapital" type="number" value="25000" />
+      </div>
+
+      <div>
+        <label>Asset Type</label>
+        <select id="assetType">
+          <option value="stock" selected>stock</option>
+          <option value="real-estate">real-estate</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Expected Return (%)</label>
+        <input id="expectedReturn" type="number" value="18" />
+      </div>
+
+      <div>
+        <label>Risk Level</label>
+        <select id="riskLevel">
+          <option value="low">low</option>
+          <option value="moderate" selected>moderate</option>
+          <option value="high">high</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Time Horizon</label>
+        <select id="timeHorizon">
+          <option value="short">short</option>
+          <option value="medium">medium</option>
+          <option value="long" selected>long</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Liquidity</label>
+        <select id="liquidity">
+          <option value="low">low</option>
+          <option value="medium">medium</option>
+          <option value="high" selected>high</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Investment Amount</label>
+        <input id="investmentAmount" type="number" value="8000" />
+      </div>
+
+      <div class="full">
+        <button onclick="runAnalysis()">Run Full Analysis</button>
+      </div>
+
+      <div class="full">
+        <h3>Response</h3>
+        <pre id="output">Waiting...</pre>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "https://real-estate-app-mt07.onrender.com/full-analysis";
+
+    async function runAnalysis() {
+      const payload = {
+        userProfile: {
+          riskTolerance: document.getElementById("riskTolerance").value,
+          availableCapital: Number(document.getElementById("availableCapital").value)
+        },
+        opportunity: {
+          assetType: document.getElementById("assetType").value,
+          expectedReturn: Number(document.getElementById("expectedReturn").value),
+          riskLevel: document.getElementById("riskLevel").value,
+          timeHorizon: document.getElementById("timeHorizon").value,
+          liquidity: document.getElementById("liquidity").value,
+          investmentAmount: Number(document.getElementById("investmentAmount").value)
+        }
+      };
+
+      const output = document.getElementById("output");
+      output.textContent = "Running...";
+
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        output.textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        output.textContent = "Error: " + err.message;
+      }
+    }
+  </script>
+</body>
+</html>
