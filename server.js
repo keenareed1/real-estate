@@ -165,3 +165,62 @@ app.get("/profile", (req, res) => {
     }
   });
 });
+app.post("/portfolio-summary", (req, res) => {
+  const {
+    availableCapital = 0,
+    riskTolerance = "moderate",
+    investmentGoal = "growth",
+    preferredAssets = []
+  } = req.body;
+
+  let allocation = {
+    stocks: 0,
+    realEstate: 0,
+    cash: 0
+  };
+
+  // Simple allocation logic (we’ll make this smarter later with AI bots)
+  if (riskTolerance === "low") {
+    allocation = { stocks: 30, realEstate: 20, cash: 50 };
+  } else if (riskTolerance === "moderate") {
+    allocation = { stocks: 50, realEstate: 30, cash: 20 };
+  } else if (riskTolerance === "high") {
+    allocation = { stocks: 70, realEstate: 20, cash: 10 };
+  }
+
+  const plan = {
+    stocks: Math.round((allocation.stocks / 100) * availableCapital),
+    realEstate: Math.round((allocation.realEstate / 100) * availableCapital),
+    cash: Math.round((allocation.cash / 100) * availableCapital)
+  };
+
+  let strategy = "Balanced growth";
+
+  if (investmentGoal === "income") {
+    strategy = "Cash-flow focused (dividends + rental income)";
+  }
+
+  if (investmentGoal === "aggressive") {
+    strategy = "High growth (higher risk tolerance)";
+  }
+
+  res.json({
+    availableCapital,
+    riskTolerance,
+    investmentGoal,
+    allocationPercent: allocation,
+    allocationDollars: plan,
+    strategy
+  });
+});
+app.get("/portfolio-summary", (req, res) => {
+  res.json({
+    message: "Use POST for /portfolio-summary",
+    example: {
+      availableCapital: 25000,
+      riskTolerance: "moderate",
+      investmentGoal: "growth",
+      preferredAssets: ["stocks", "real-estate"]
+    }
+  });
+});
