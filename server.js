@@ -224,3 +224,107 @@ app.get("/portfolio-summary", (req, res) => {
     }
   });
 });
+app.post("/analyze-opportunity", (req, res) => {
+  const {
+    assetType = "stock",          // stock | real-estate | other
+    expectedReturn = 0,           // percent
+    riskLevel = "moderate",       // low | moderate | high
+    timeHorizon = "medium",       // short | medium | long
+    liquidity = "high"            // low | medium | high
+  } = req.body;
+
+  let score = 0;
+  let confidence = 50;
+  let reasoning = [];
+
+  // Return scoring
+  if (expectedReturn >= 20) {
+    score += 3;
+    confidence += 15;
+    reasoning.push("High expected return");
+  } else if (expectedReturn >= 10) {
+    score += 2;
+    confidence += 10;
+    reasoning.push("Solid expected return");
+  } else if (expectedReturn >= 5) {
+    score += 1;
+    confidence += 5;
+    reasoning.push("Moderate expected return");
+  } else {
+    score -= 1;
+    reasoning.push("Low expected return");
+  }
+
+  // Risk scoring
+  if (riskLevel === "low") {
+    score += 2;
+    confidence += 10;
+    reasoning.push("Low risk profile");
+  } else if (riskLevel === "moderate") {
+    score += 1;
+    reasoning.push("Moderate risk profile");
+  } else {
+    score -= 2;
+    confidence -= 10;
+    reasoning.push("High risk profile");
+  }
+
+  // Time horizon scoring
+  if (timeHorizon === "long") {
+    score += 1;
+    reasoning.push("Long-term opportunity");
+  } else if (timeHorizon === "short") {
+    score -= 1;
+    reasoning.push("Short-term uncertainty");
+  }
+
+  // Liquidity scoring
+  if (liquidity === "high") {
+    score += 1;
+    reasoning.push("High liquidity");
+  } else if (liquidity === "low") {
+    score -= 1;
+    reasoning.push("Low liquidity");
+  }
+
+  // Asset-type nuance
+  if (assetType === "real-estate") {
+    reasoning.push("Real estate opportunity analyzed");
+  } else if (assetType === "stock") {
+    reasoning.push("Stock opportunity analyzed");
+  }
+
+  let recommendation = "PASS";
+
+  if (score >= 5) recommendation = "STRONG BUY";
+  else if (score >= 3) recommendation = "BUY";
+  else if (score >= 1) recommendation = "WATCH";
+  else recommendation = "PASS";
+
+  if (confidence > 95) confidence = 95;
+  if (confidence < 5) confidence = 5;
+
+  res.json({
+    assetType,
+    expectedReturn,
+    riskLevel,
+    timeHorizon,
+    liquidity,
+    score,
+    confidence,
+    recommendation,
+    reasoning
+  });
+});
+app.get("/analyze-opportunity", (req, res) => {
+  res.json({
+    message: "Use POST for /analyze-opportunity",
+    example: {
+      assetType: "stock",
+      expectedReturn: 18,
+      riskLevel: "moderate",
+      timeHorizon: "long",
+      liquidity: "high"
+    }
+  });
+});
