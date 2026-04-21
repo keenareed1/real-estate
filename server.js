@@ -316,6 +316,64 @@ app.post("/analyze-opportunity", (req, res) => {
     reasoning
   });
 });
+app.post("/analyze-opportunity", (req, res) => {
+  const {
+    assetType = "stock",
+    expectedReturn = 0,
+    riskLevel = "moderate",
+    timeHorizon = "medium",
+    liquidity = "high"
+  } = req.body;
+
+  let score = 0;
+  let confidence = 50;
+  let reasoning = [];
+
+  if (expectedReturn >= 20) {
+    score += 3;
+    confidence += 15;
+    reasoning.push("High expected return");
+  } else if (expectedReturn >= 10) {
+    score += 2;
+    confidence += 10;
+    reasoning.push("Solid expected return");
+  } else {
+    score -= 1;
+    reasoning.push("Low expected return");
+  }
+
+  if (riskLevel === "low") {
+    score += 2;
+    reasoning.push("Low risk");
+  } else if (riskLevel === "high") {
+    score -= 2;
+    confidence -= 10;
+    reasoning.push("High risk");
+  }
+
+  if (timeHorizon === "long") {
+    score += 1;
+    reasoning.push("Long-term upside");
+  }
+
+  if (liquidity === "high") {
+    score += 1;
+    reasoning.push("High liquidity");
+  }
+
+  let recommendation = "PASS";
+
+  if (score >= 5) recommendation = "STRONG BUY";
+  else if (score >= 3) recommendation = "BUY";
+  else if (score >= 1) recommendation = "WATCH";
+
+  res.json({
+    score,
+    confidence,
+    recommendation,
+    reasoning
+  });
+});
 app.get("/analyze-opportunity", (req, res) => {
   res.json({
     message: "Use POST for /analyze-opportunity",
@@ -325,6 +383,58 @@ app.get("/analyze-opportunity", (req, res) => {
       riskLevel: "moderate",
       timeHorizon: "long",
       liquidity: "high"
+    }
+  });
+});
+app.post("/bot-explain", (req, res) => {
+  const {
+    assetType = "opportunity",
+    recommendation = "WATCH",
+    confidence = 50,
+    reasoning = []
+  } = req.body;
+
+  let summary = `The AI bot reviewed this ${assetType} opportunity and rated it ${recommendation} with ${confidence}% confidence.`;
+
+  let tone = "neutral";
+
+  if (recommendation === "STRONG BUY") {
+    tone = "bullish";
+  } else if (recommendation === "BUY") {
+    tone = "positive";
+  } else if (recommendation === "PASS") {
+    tone = "cautious";
+  }
+
+  const explanation = {
+    summary,
+    tone,
+    keyDrivers: reasoning,
+    nextAction:
+      recommendation === "STRONG BUY"
+        ? "Consider allocating capital soon if it fits your portfolio."
+        : recommendation === "BUY"
+        ? "This may be worth adding to your watchlist or entering gradually."
+        : recommendation === "WATCH"
+        ? "Monitor this opportunity for stronger confirmation."
+        : "Avoid committing capital until the fundamentals improve."
+  };
+
+  res.json(explanation);
+});
+app.get("/bot-explain", (req, res) => {
+  res.json({
+    message: "Use POST for /bot-explain",
+    example: {
+      assetType: "stock",
+      recommendation: "STRONG BUY",
+      confidence: 60,
+      reasoning: [
+        "Solid expected return",
+        "Moderate risk profile",
+        "Long-term opportunity",
+        "High liquidity"
+      ]
     }
   });
 });
