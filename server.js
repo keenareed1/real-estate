@@ -27,3 +27,19 @@ app.get("/health", (req, res) => {
     service: "real-estate-app"
   });
 });
+app.post("/estimate-cost", (req, res) => {
+  const { squareFeet = 0, buildType = "standard" } = req.body;
+
+  let costPerSqFt = 150;
+  if (buildType === "premium") costPerSqFt = 220;
+  if (buildType === "luxury") costPerSqFt = 320;
+
+  const estimatedCost = squareFeet * costPerSqFt;
+
+  res.json({
+    squareFeet,
+    buildType,
+    costPerSqFt,
+    estimatedCost
+  });
+});
