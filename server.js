@@ -533,6 +533,69 @@ app.post("/risk-check", (req, res) => {
     flags
   });
 });
+app.post("/risk-check", (req, res) => {
+  const {
+    userProfile = {},
+    opportunity = {}
+  } = req.body;
+
+  const {
+    riskTolerance = "moderate",
+    availableCapital = 0
+  } = userProfile;
+
+  const {
+    riskLevel = "moderate",
+    expectedReturn = 0,
+    investmentAmount = 0
+  } = opportunity;
+
+  let approved = true;
+  let flags = [];
+
+  // Risk tolerance vs opportunity risk
+  if (riskTolerance === "low" && riskLevel === "high") {
+    approved = false;
+    flags.push("High-risk opportunity does not match low-risk profile");
+  }
+
+  if (riskTolerance === "moderate" && riskLevel === "high") {
+    flags.push("Risk level is higher than preferred");
+  }
+
+  // Capital exposure check
+  const exposurePercent = availableCapital > 0
+    ? (investmentAmount / availableCapital) * 100
+    : 0;
+
+  if (exposurePercent > 50) {
+    approved = false;
+    flags.push("Too much capital allocated to a single opportunity");
+  } else if (exposurePercent > 25) {
+    flags.push("High capital exposure");
+  }
+
+  // Return sanity check
+  if (expectedReturn > 50) {
+    flags.push("Unusually high return — verify assumptions");
+  }
+
+  // Final decision
+  let decision = "APPROVED";
+
+  if (!approved) {
+    decision = "BLOCKED";
+  } else if (flags.length > 0) {
+    decision = "CAUTION";
+  }
+
+  res.json({
+    decision,
+    approved,
+    exposurePercent: Number(exposurePercent.toFixed(2)),
+    flags
+  });
+});
 app.get("/risk-check", (req, res) => {
   res.json({
     message: "Use POST for /risk-check",
