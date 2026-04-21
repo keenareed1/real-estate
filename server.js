@@ -422,6 +422,38 @@ app.post("/bot-explain", (req, res) => {
 
   res.json(explanation);
 });
+app.post("/bot-explain", (req, res) => {
+  const {
+    assetType = "opportunity",
+    recommendation = "WATCH",
+    confidence = 50,
+    reasoning = []
+  } = req.body;
+
+  let summary = `The AI bot reviewed this ${assetType} opportunity and rated it ${recommendation} with ${confidence}% confidence.`;
+
+  let tone = "neutral";
+
+  if (recommendation === "STRONG BUY") tone = "bullish";
+  else if (recommendation === "BUY") tone = "positive";
+  else if (recommendation === "PASS") tone = "cautious";
+
+  const explanation = {
+    summary,
+    tone,
+    keyDrivers: reasoning,
+    nextAction:
+      recommendation === "STRONG BUY"
+        ? "Consider allocating capital soon if it fits your portfolio."
+        : recommendation === "BUY"
+        ? "This may be worth entering gradually."
+        : recommendation === "WATCH"
+        ? "Monitor for better confirmation."
+        : "Avoid until conditions improve."
+  };
+
+  res.json(explanation);
+});
 app.get("/bot-explain", (req, res) => {
   res.json({
     message: "Use POST for /bot-explain",
