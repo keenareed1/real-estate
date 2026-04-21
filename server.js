@@ -21,3 +21,9 @@ app.get("/health", (req, res) => {
     service: "real-estate-app"
   });
 });
+app.get("/health", (req, res) => {
+  res.json({
+    status: "ok",
+    service: "real-estate-app"
+  });
+});
