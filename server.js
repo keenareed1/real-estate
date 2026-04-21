@@ -1,6 +1,10 @@
+const { createClient } = require("@supabase/supabase-js");
 const express = require("express");
 const cors = require("cors");
-
+const supabase = createClient(
+  "dgfjvcgctrafhkutsngk",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRnZmp2Y2djdHJhZmhrdXRzbmdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MDMwODgsImV4cCI6MjA5MjM3OTA4OH0.B77DJAaeQqLMz3N1FhAqwldWswWWMIFXOAtBc6sW8lY"
+);
 const app = express();
 
 app.use(cors());
@@ -127,7 +131,7 @@ app.get("/analyze-deal", (req, res) => {
     }
   });
 });
-app.post("/profile", (req, res) => {
+app.post("/profile", async (req, res) => {
   const {
     name = "",
     riskTolerance = "moderate",
@@ -139,16 +143,28 @@ app.post("/profile", (req, res) => {
 
   const profile = {
     name,
-    riskTolerance,
-    availableCapital,
-    investmentGoal,
-    timeHorizon,
-    preferredAssets
+    risk_tolerance: riskTolerance,
+    available_capital: availableCapital,
+    investment_goal: investmentGoal,
+    time_horizon: timeHorizon,
+    preferred_assets: preferredAssets
   };
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .insert([profile])
+    .select();
+
+  if (error) {
+    return res.status(500).json({
+      message: "Failed to save profile",
+      error
+    });
+  }
 
   res.json({
     message: "Profile created successfully",
-    profile
+    profile: data[0]
   });
 });
 
@@ -926,6 +942,32 @@ app.post("/full-analysis", (req, res) => {
     finalRecommendation
   });
 });
+const analysisRecord = {
+  asset_type: assetType,
+  expected_return: expectedReturn,
+  risk_level: riskLevel,
+  time_horizon: timeHorizon,
+  liquidity: liquidity,
+  investment_amount: investmentAmount,
+  score,
+  confidence,
+  recommendation,
+  final_recommendation: finalRecommendation,
+  reasoning,
+  risk_flags: flags
+};
+
+const { error: analysisSaveError } = await supabase
+  .from("analyses")
+  .insert([analysisRecord]);
+
+if (analysisSaveError) {
+  return res.status(500).json({
+    message: "Analysis completed but failed to save",
+    error: analysisSaveError
+  });
+}
+
 app.get("/full-analysis", (req, res) => {
   res.json({
     message: "Use POST for /full-analysis",
