@@ -52,3 +52,29 @@ app.get("/estimate-cost", (req, res) => {
     }
   });
 });
+app.post("/estimate-cost", (req, res) => {
+  const { squareFeet = 0, buildType = "standard" } = req.body;
+
+  let costPerSqFt = 150;
+  if (buildType === "premium") costPerSqFt = 220;
+  if (buildType === "luxury") costPerSqFt = 320;
+
+  const estimatedCost = squareFeet * costPerSqFt;
+
+  res.json({
+    squareFeet,
+    buildType,
+    costPerSqFt,
+    estimatedCost
+  });
+});
+
+app.get("/estimate-cost", (req, res) => {
+  res.json({
+    message: "Use POST for /estimate-cost",
+    example: {
+      squareFeet: 2000,
+      buildType: "premium"
+    }
+  });
+});
