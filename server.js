@@ -43,3 +43,12 @@ app.post("/estimate-cost", (req, res) => {
     estimatedCost
   });
 });
+app.get("/estimate-cost", (req, res) => {
+  res.json({
+    message: "Use POST for /estimate-cost",
+    example: {
+      squareFeet: 2000,
+      buildType: "premium"
+    }
+  });
+});
