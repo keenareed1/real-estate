@@ -2,8 +2,8 @@ const { createClient } = require("@supabase/supabase-js");
 const express = require("express");
 const cors = require("cors");
 const supabase = createClient(
-  "dgfjvcgctrafhkutsngk",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRnZmp2Y2djdHJhZmhrdXRzbmdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MDMwODgsImV4cCI6MjA5MjM3OTA4OH0.B77DJAaeQqLMz3N1FhAqwldWswWWMIFXOAtBc6sW8lY"
+  "https://dgfjvcgctrafhkutsngk.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 );
 const app = express();
 
