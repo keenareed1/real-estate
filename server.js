@@ -140,7 +140,7 @@ app.post("/profile", async (req, res) => {
     timeHorizon = "medium",
     preferredAssets = []
   } = req.body;
-
+console.log("Saving profile:", profile);
   const profile = {
     name,
     risk_tolerance: riskTolerance,
@@ -628,12 +628,11 @@ app.get("/risk-check", (req, res) => {
     }
   });
 });
-app.post("/full-analysis", (req, res) => {
+app.post("/full-analysis", async (req, res) => {
   const {
     userProfile = {},
     opportunity = {}
   } = req.body;
-
   const {
     riskTolerance = "moderate",
     availableCapital = 0
@@ -956,7 +955,7 @@ const analysisRecord = {
   reasoning,
   risk_flags: flags
 };
-
+console.log("Saving analysis:", analysisRecord);
 const { error: analysisSaveError } = await supabase
   .from("analyses")
   .insert([analysisRecord]);
@@ -985,5 +984,32 @@ app.get("/full-analysis", (req, res) => {
         investmentAmount: 8000
       }
     }
+    const analysisRecord = {
+  asset_type: assetType,
+  expected_return: expectedReturn,
+  risk_level: riskLevel,
+  time_horizon: timeHorizon,
+  liquidity,
+  investment_amount: investmentAmount,
+  score,
+  confidence,
+  recommendation,
+  final_recommendation: finalRecommendation,
+  reasoning,
+  risk_flags: flags
+};
+
+console.log("Saving analysis:", analysisRecord);
+
+const { error: analysisSaveError } = await supabase
+  .from("analyses")
+  .insert([analysisRecord]);
+
+if (analysisSaveError) {
+  return res.status(500).json({
+    message: "Analysis completed but failed to save",
+    error: analysisSaveError
+  });
+}
   });
 });
