@@ -3,8 +3,8 @@ const express = require("express");
 const cors = require("cors");
 const supabase = createClient(
   "https://dgfjvcgctrafhkutsngk.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-);
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRnZmp2Y2djdHJhZmhrdXRzbmdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MDMwODgsImV4cCI6MjA5MjM3OTA4OH0.B77DJAaeQqLMz3N1FhAqwldWswWWMIFXOAtBc6sW8lY"
+)
 const app = express();
 
 app.use(cors());
@@ -831,4 +831,12 @@ app.get("/full-analysis", (req, res) => {
       }
     }
   });
+});
+app.get("/analyses", async (req, res) => {
+  const { data } = await supabase
+    .from("analyses")
+    .select("*")
+    .order("id", { ascending: false });
+
+  res.json(data);
 });
