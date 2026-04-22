@@ -633,162 +633,6 @@ app.post("/full-analysis", async (req, res) => {
     userProfile = {},
     opportunity = {}
   } = req.body;
-  const {
-    riskTolerance = "moderate",
-    availableCapital = 0
-  } = userProfile;
-
-  const {
-    assetType = "stock",
-    expectedReturn = 0,
-    riskLevel = "moderate",
-    timeHorizon = "medium",
-    liquidity = "high",
-    investmentAmount = 0
-  } = opportunity;
-
-  let score = 0;
-  let confidence = 50;
-  let reasoning = [];
-
-  if (expectedReturn >= 20) {
-    score += 3;
-    confidence += 15;
-    reasoning.push("High expected return");
-  } else if (expectedReturn >= 10) {
-    score += 2;
-    confidence += 10;
-    reasoning.push("Solid expected return");
-  } else if (expectedReturn >= 5) {
-    score += 1;
-    confidence += 5;
-    reasoning.push("Moderate expected return");
-  } else {
-    score -= 1;
-    reasoning.push("Low expected return");
-  }
-
-  if (riskLevel === "low") {
-    score += 2;
-    confidence += 10;
-    reasoning.push("Low risk profile");
-  } else if (riskLevel === "moderate") {
-    score += 1;
-    reasoning.push("Moderate risk profile");
-  } else {
-    score -= 2;
-    confidence -= 10;
-    reasoning.push("High risk profile");
-  }
-
-  if (timeHorizon === "long") {
-    score += 1;
-    reasoning.push("Long-term opportunity");
-  } else if (timeHorizon === "short") {
-    score -= 1;
-    reasoning.push("Short-term uncertainty");
-  }
-
-  if (liquidity === "high") {
-    score += 1;
-    reasoning.push("High liquidity");
-  } else if (liquidity === "low") {
-    score -= 1;
-    reasoning.push("Low liquidity");
-  }
-
-  reasoning.push(`${assetType} opportunity analyzed`);
-
-  let recommendation = "PASS";
-  if (score >= 5) recommendation = "STRONG BUY";
-  else if (score >= 3) recommendation = "BUY";
-  else if (score >= 1) recommendation = "WATCH";
-
-  if (confidence > 95) confidence = 95;
-  if (confidence < 5) confidence = 5;
-
-  let approved = true;
-  let flags = [];
-
-  if (riskTolerance === "low" && riskLevel === "high") {
-    approved = false;
-    flags.push("High-risk opportunity does not match low-risk profile");
-  }
-
-  if (riskTolerance === "moderate" && riskLevel === "high") {
-    flags.push("Risk level is higher than preferred");
-  }
-
-  const exposurePercent = availableCapital > 0
-    ? (investmentAmount / availableCapital) * 100
-    : 0;
-
-  if (exposurePercent > 50) {
-    approved = false;
-    flags.push("Too much capital allocated to a single opportunity");
-  } else if (exposurePercent > 25) {
-    flags.push("High capital exposure");
-  }
-
-  if (expectedReturn > 50) {
-    flags.push("Unusually high return — verify assumptions");
-  }
-
-  let riskDecision = "APPROVED";
-  if (!approved) {
-    riskDecision = "BLOCKED";
-  } else if (flags.length > 0) {
-    riskDecision = "CAUTION";
-  }
-
-  let tone = "neutral";
-  if (recommendation === "STRONG BUY") tone = "bullish";
-  else if (recommendation === "BUY") tone = "positive";
-  else if (recommendation === "PASS") tone = "cautious";
-
-  const explanation = {
-    summary: `The AI engine reviewed this ${assetType} opportunity and rated it ${recommendation} with ${confidence}% confidence.`,
-    tone,
-    keyDrivers: reasoning,
-    nextAction:
-      riskDecision === "BLOCKED"
-        ? "Do not proceed unless the position size or risk profile changes."
-        : recommendation === "STRONG BUY"
-        ? "Consider allocating capital soon if it fits your portfolio."
-        : recommendation === "BUY"
-        ? "This may be worth entering gradually."
-        : recommendation === "WATCH"
-        ? "Monitor for better confirmation."
-        : "Avoid until conditions improve."
-  };
-
-  const finalRecommendation =
-    riskDecision === "BLOCKED" ? "DO NOT INVEST" : recommendation;
-
-  res.json({
-    profile: userProfile,
-    opportunity,
-    analysis: {
-      score,
-      confidence,
-      recommendation,
-      reasoning
-    },
-    risk: {
-      decision: riskDecision,
-      approved,
-      exposurePercent: Number(exposurePercent.toFixed(2)),
-      flags
-    },
-    explanation,
-    finalRecommendation
-  });
-});
-app.post("/full-analysis", (req, res) => {
-  const {
-    userProfile = {},
-    opportunity = {}
-  } = req.body;
 
   const {
     riskTolerance = "moderate",
@@ -876,9 +720,8 @@ app.post("/full-analysis", (req, res) => {
     flags.push("Risk level is higher than preferred");
   }
 
-  const exposurePercent = availableCapital > 0
-    ? (investmentAmount / availableCapital) * 100
-    : 0;
+  const exposurePercent =
+    availableCapital > 0 ? (investmentAmount / availableCapital) * 100 : 0;
 
   if (exposurePercent > 50) {
     approved = false;
@@ -922,6 +765,34 @@ app.post("/full-analysis", (req, res) => {
   const finalRecommendation =
     riskDecision === "BLOCKED" ? "DO NOT INVEST" : recommendation;
 
+  const analysisRecord = {
+    asset_type: assetType,
+    expected_return: expectedReturn,
+    risk_level: riskLevel,
+    time_horizon: timeHorizon,
+    liquidity,
+    investment_amount: investmentAmount,
+    score,
+    confidence,
+    recommendation,
+    final_recommendation: finalRecommendation,
+    reasoning,
+    risk_flags: flags
+  };
+
+  console.log("Saving analysis:", analysisRecord);
+
+  const { error: analysisSaveError } = await supabase
+    .from("analyses")
+    .insert([analysisRecord]);
+
+  if (analysisSaveError) {
+    return res.status(500).json({
+      message: "Analysis completed but failed to save",
+      error: analysisSaveError
+    });
+  }
+
   res.json({
     profile: userProfile,
     opportunity,
@@ -941,31 +812,6 @@ app.post("/full-analysis", (req, res) => {
     finalRecommendation
   });
 });
-const analysisRecord = {
-  asset_type: assetType,
-  expected_return: expectedReturn,
-  risk_level: riskLevel,
-  time_horizon: timeHorizon,
-  liquidity: liquidity,
-  investment_amount: investmentAmount,
-  score,
-  confidence,
-  recommendation,
-  final_recommendation: finalRecommendation,
-  reasoning,
-  risk_flags: flags
-};
-console.log("Saving analysis:", analysisRecord);
-const { error: analysisSaveError } = await supabase
-  .from("analyses")
-  .insert([analysisRecord]);
-
-if (analysisSaveError) {
-  return res.status(500).json({
-    message: "Analysis completed but failed to save",
-    error: analysisSaveError
-  });
-}
 
 app.get("/full-analysis", (req, res) => {
   res.json({
@@ -984,32 +830,5 @@ app.get("/full-analysis", (req, res) => {
         investmentAmount: 8000
       }
     }
-    const analysisRecord = {
-  asset_type: assetType,
-  expected_return: expectedReturn,
-  risk_level: riskLevel,
-  time_horizon: timeHorizon,
-  liquidity,
-  investment_amount: investmentAmount,
-  score,
-  confidence,
-  recommendation,
-  final_recommendation: finalRecommendation,
-  reasoning,
-  risk_flags: flags
-};
-
-console.log("Saving analysis:", analysisRecord);
-
-const { error: analysisSaveError } = await supabase
-  .from("analyses")
-  .insert([analysisRecord]);
-
-if (analysisSaveError) {
-  return res.status(500).json({
-    message: "Analysis completed but failed to save",
-    error: analysisSaveError
-  });
-}
   });
 });
