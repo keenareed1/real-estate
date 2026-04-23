@@ -14,7 +14,45 @@ app.get("/", (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
+app.post("/portfolio-optimize", (req, res) => {
+  const { capital, opportunities } = req.body;
 
+  if (!capital || !opportunities || !opportunities.length) {
+    return res.status(400).json({ message: "Missing capital or opportunities" });
+  }
+
+  const riskWeight = {
+    low: 1,
+    moderate: 2,
+    high: 3
+  };
+
+  // Score opportunities
+  const scored = opportunities.map(o => {
+    const score =
+      (o.expectedReturn || 0) /
+      (riskWeight[o.riskLevel] || 2);
+
+    return { ...o, score };
+  });
+
+  // Sort highest score first
+  scored.sort((a, b) => b.score - a.score);
+
+  // Allocate capital
+  const totalScore = scored.reduce((sum, o) => sum + o.score, 0);
+
+  const allocation = scored.map(o => ({
+    asset: o.assetType,
+    allocation: Math.round((o.score / totalScore) * capital),
+    score: o.score
+  }));
+
+  res.json({
+    strategy: "AI Optimized Allocation",
+    allocation
+  });
+});
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
@@ -839,3 +877,82 @@ app.get("/analyses", async (req, res) => {
 
   res.json(data);
 });
+app.post("/portfolio-optimize", (req, res) => {
+  const { capital, opportunities } = req.body;
+
+  if (!capital || !opportunities || !opportunities.length) {
+    return res.status(400).json({ message: "Missing capital or opportunities" });
+  }
+
+  const riskWeight = {
+    low: 1,
+    moderate: 2,
+    high: 3
+  };
+
+  // Score each opportunity
+  const scored = opportunities.map(o => {
+    const score =
+      (o.expectedReturn || 0) /
+      (riskWeight[o.riskLevel] || 2);
+
+    return { ...o, score };
+  });
+
+  // Sort best → worst
+  scored.sort((a, b) => b.score - a.score);
+
+  // Allocate capital (weighted)
+  const totalScore = scored.reduce((sum, o) => sum + o.score, 0);
+
+  const allocation = scored.map(o => ({
+    asset: o.assetType,
+    allocation: Math.round((o.score / totalScore) * capital),
+    score: o.score
+  }));
+
+  res.json({
+    strategy: "AI Optimized Allocation",
+    allocation
+  });
+});
+async function runOptimizer() {
+  const capital = document.getElementById("capital").value;
+
+  const payload = {
+    capital: Number(capital),
+    opportunities: [
+      { assetType: "stock", expectedReturn: 18, riskLevel: "moderate" },
+      { assetType: "real-estate", expectedReturn: 12, riskLevel: "low" },
+      { assetType: "crypto", expectedReturn: 25, riskLevel: "high" }
+    ]
+  };
+
+  const res = await fetch("https://real-estate-app-mt07.onrender.com/portfolio-optimize", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+
+  const data = await res.json();
+  document.getElementById("optimizerOutput").textContent =
+    JSON.stringify(data, null, 2);
+}
+window.onload = loadAnalyses;
+async function signUp() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  const { data, error } = await supabase.auth.signUp({ email, password });
+
+  alert(error ? error.message : "Signed up!");
+}
+
+async function signIn() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+  alert(error ? error.message : "Logged in!");
+}
