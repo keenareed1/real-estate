@@ -192,7 +192,36 @@ async function loadAnalyses() {
       Recommendation: <b>${item.recommendation}</b><br/>
       Confidence: ${item.confidence}%
     `;
+async function runOptimizer() {
+  const capital = Number(document.getElementById("capital").value);
 
+  const payload = {
+    capital,
+    opportunities: [
+      { assetType: "stock", expectedReturn: 18, riskLevel: "moderate" },
+      { assetType: "real-estate", expectedReturn: 12, riskLevel: "low" },
+      { assetType: "crypto", expectedReturn: 25, riskLevel: "high" }
+    ]
+  };
+
+  const output = document.getElementById("optimizerOutput");
+  output.textContent = "Running...";
+
+  try {
+    const res = await fetch("https://real-estate-app-mt07.onrender.com/portfolio-optimize", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+    output.textContent = JSON.stringify(data, null, 2);
+  } catch (err) {
+    output.textContent = "Error: " + err.message;
+  }
+}
     container.appendChild(card);
   });
   <h2>Previous Analyses</h2>
@@ -218,3 +247,11 @@ const supabase = window.supabase.createClient(
 <input id="password" type="password" placeholder="Password" />
 <button onclick="signUp()">Sign Up</button>
 <button onclick="signIn()">Login</button>
+<h2>Portfolio Optimizer</h2>
+
+<label>Total Capital</label>
+<input id="capital" type="number" value="50000" />
+
+<button onclick="runOptimizer()">Optimize Portfolio</button>
+
+<pre id="optimizerOutput">Waiting...</pre>
