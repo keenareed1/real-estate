@@ -8,7 +8,6 @@
     :root {
       --bg: #060b1a;
       --panel: #0d1530;
-      --panel-2: #101a3b;
       --border: #26345f;
       --text: #f4f7ff;
       --muted: #a9b4d0;
@@ -21,9 +20,7 @@
       --radius: 16px;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -93,7 +90,6 @@
 
     input,
     select,
-    textarea,
     button {
       width: 100%;
       border-radius: 12px;
@@ -106,8 +102,7 @@
     }
 
     input:focus,
-    select:focus,
-    textarea:focus {
+    select:focus {
       border-color: var(--accent-2);
       box-shadow: 0 0 0 3px rgba(76, 141, 255, 0.16);
     }
@@ -117,15 +112,6 @@
       border: none;
       cursor: pointer;
       font-weight: 700;
-      transition: transform 0.05s ease, opacity 0.2s ease;
-    }
-
-    button:hover {
-      opacity: 0.96;
-    }
-
-    button:active {
-      transform: translateY(1px);
     }
 
     .secondary-btn {
@@ -146,56 +132,10 @@
       min-height: 56px;
     }
 
-    .pill-row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .pill {
-      background: #101b40;
-      border: 1px solid var(--border);
-      color: var(--muted);
-      padding: 8px 12px;
-      border-radius: 999px;
-      font-size: 13px;
-    }
-
     .cards {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 14px;
-    }
-
-    .card {
-      background: #09112a;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 14px;
-    }
-
-    .card h3 {
-      margin: 0 0 8px 0;
-      font-size: 16px;
-    }
-
-    .muted {
-      color: var(--muted);
-    }
-
-    .good {
-      color: var(--success);
-      font-weight: 700;
-    }
-
-    .warn {
-      color: var(--warning);
-      font-weight: 700;
-    }
-
-    .bad {
-      color: var(--danger);
-      font-weight: 700;
     }
 
     .history-list {
@@ -208,21 +148,6 @@
       border: 1px solid var(--border);
       border-radius: 14px;
       padding: 14px;
-    }
-
-    .history-item strong {
-      font-size: 15px;
-    }
-
-    .toolbar {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .toolbar button {
-      width: auto;
-      min-width: 140px;
     }
 
     .small {
@@ -248,15 +173,6 @@
     <div class="hero">
       <h1>AI Fintech Engine</h1>
       <p>Analyze opportunities, optimize capital, explain recommendations, and review saved history.</p>
-    </div>
-
-    <div class="section">
-      <h2>Platform Status</h2>
-      <div class="pill-row">
-        <div class="pill">Frontend: Live</div>
-        <div class="pill">Backend: Render</div>
-        <div class="pill">Database: Supabase</div>
-      </div>
     </div>
 
     <div class="section">
@@ -346,30 +262,29 @@
           </select>
         </div>
 
-        <div class="full toolbar">
+        <div class="full">
           <button id="runAnalysisBtn">Run Full Analysis</button>
-          <button id="loadHistoryBtn" class="secondary-btn">Load Saved Analyses</button>
         </div>
       </div>
 
       <div class="cards" style="margin-top:16px;">
-        <div class="card">
+        <div>
           <h3>Summary</h3>
           <div id="summaryOutput" class="output">Waiting...</div>
         </div>
-        <div class="card">
+        <div>
           <h3>Final Recommendation</h3>
           <div id="finalRecommendationOutput" class="output">Waiting...</div>
         </div>
-        <div class="card">
+        <div>
           <h3>Analysis</h3>
           <div id="analysisOutput" class="output">Waiting...</div>
         </div>
-        <div class="card">
+        <div>
           <h3>Risk</h3>
           <div id="riskOutput" class="output">Waiting...</div>
         </div>
-        <div class="card full">
+        <div class="full">
           <h3>Raw Response</h3>
           <pre id="fullAnalysisRaw">Waiting...</pre>
         </div>
@@ -383,7 +298,8 @@
           <label for="capital">Total Capital</label>
           <input id="capital" type="number" value="50000" />
         </div>
-        <div style="display:flex;align-items:end;">
+        <div>
+          <label>&nbsp;</label>
           <button id="optBtn">Optimize Portfolio</button>
         </div>
         <div class="full">
@@ -394,6 +310,9 @@
 
     <div class="section">
       <h2>Saved Analysis History</h2>
+      <div style="margin-bottom:12px;">
+        <button id="loadHistoryBtn" class="secondary-btn">Load Saved Analyses</button>
+      </div>
       <div id="history" class="history-list">
         <div class="small">No history loaded yet.</div>
       </div>
@@ -406,18 +325,18 @@
     const OPTIMIZER_URL = "https://real-estate-app-mt07.onrender.com/portfolio-optimize";
     const ANALYSES_URL = "https://real-estate-app-mt07.onrender.com/analyses";
 
-    // Replace these 2 values if you want auth to work.
     const SUPABASE_URL = "https://YOUR_PROJECT_ID.supabase.co";
     const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
 
     let supabase = null;
+
     try {
       if (
         window.supabase &&
-        SUPABASE_URL.startsWith("https://dgfjvcgctrafhkutsngk.supabase.co") &&
-        !SUPABASE_URL.includes("dgfjvcgctrafhkutsngk") &&
+        SUPABASE_URL.startsWith("https://") &&
+        !SUPABASE_URL.includes("YOUR_PROJECT_ID") &&
         SUPABASE_ANON_KEY &&
-        !SUPABASE_ANON_KEY.includes("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRnZmp2Y2djdHJhZmhrdXRzbmdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MDMwODgsImV4cCI6MjA5MjM3OTA4OH0.B77DJAaeQqLMz3N1FhAqwldWswWWMIFXOAtBc6sW8lY")
+        !SUPABASE_ANON_KEY.includes("YOUR_SUPABASE_ANON_KEY")
       ) {
         supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
       }
@@ -467,27 +386,18 @@
         });
 
         const data = await res.json();
+        console.log("full analysis response:", data);
 
         if (!res.ok) {
           throw new Error(data.message || "Analysis request failed");
         }
 
-        setText(
-          "summaryOutput",
-          data.explanation?.summary || "No summary returned."
-        );
+        setText("summaryOutput", data.explanation?.summary || "No summary returned.");
 
         const finalRec = data.finalRecommendation || "N/A";
-        const recClass =
-          finalRec === "STRONG BUY" || finalRec === "BUY"
-            ? "good"
-            : finalRec === "WATCH" || finalRec === "CAUTION"
-            ? "warn"
-            : "bad";
-
         setHTML(
           "finalRecommendationOutput",
-          `<span class="${recClass}">${finalRec}</span>`
+          `<strong>${finalRec}</strong>`
         );
 
         setHTML(
@@ -523,10 +433,7 @@
     }
 
     async function runOptimizer() {
-      console.log("clicked optimizer");
-
       const capital = Number(document.getElementById("capital").value);
-
       const payload = {
         capital,
         opportunities: [
@@ -548,6 +455,7 @@
         });
 
         const data = await res.json();
+        console.log("optimizer response:", data);
 
         if (!res.ok) {
           throw new Error(data.message || "Optimizer request failed");
@@ -560,17 +468,13 @@
 
         setHTML(
           "optimizerOutput",
-          data.allocation
-            .map(
-              item => `
-              <div class="history-item">
-                <strong>${item.asset}</strong><br/>
-                Allocation: $${item.allocation}<br/>
-                Score: ${Number(item.score).toFixed(2)}
-              </div>
-            `
-            )
-            .join("")
+          data.allocation.map(item => `
+            <div class="history-item">
+              <strong>${item.asset}</strong><br/>
+              Allocation: $${item.allocation}<br/>
+              Score: ${Number(item.score).toFixed(2)}
+            </div>
+          `).join("")
         );
       } catch (err) {
         console.error("optimizer error:", err);
@@ -585,6 +489,7 @@
       try {
         const res = await fetch(ANALYSES_URL);
         const data = await res.json();
+        console.log("history response:", data);
 
         if (!res.ok) {
           throw new Error(data.message || "Failed to fetch analyses");
@@ -595,20 +500,16 @@
           return;
         }
 
-        container.innerHTML = data
-          .map(
-            item => `
-            <div class="history-item">
-              <strong>${item.asset_type || "unknown asset"}</strong><br/>
-              Return: ${item.expected_return ?? "N/A"}%<br/>
-              Risk: ${item.risk_level ?? "N/A"}<br/>
-              Recommendation: <b>${item.recommendation ?? "N/A"}</b><br/>
-              Confidence: ${item.confidence ?? "N/A"}%<br/>
-              Final: ${item.final_recommendation ?? "N/A"}
-            </div>
-          `
-          )
-          .join("");
+        container.innerHTML = data.map(item => `
+          <div class="history-item">
+            <strong>${item.asset_type || "unknown asset"}</strong><br/>
+            Return: ${item.expected_return ?? "N/A"}%<br/>
+            Risk: ${item.risk_level ?? "N/A"}<br/>
+            Recommendation: <b>${item.recommendation ?? "N/A"}</b><br/>
+            Confidence: ${item.confidence ?? "N/A"}%<br/>
+            Final: ${item.final_recommendation ?? "N/A"}
+          </div>
+        `).join("");
       } catch (err) {
         console.error("loadAnalyses error:", err);
         container.innerHTML = `<div class="small">Error: ${err.message}</div>`;
@@ -653,7 +554,7 @@
       }
     }
 
-    function bindUI() {
+    document.addEventListener("DOMContentLoaded", () => {
       const runAnalysisBtn = document.getElementById("runAnalysisBtn");
       const optBtn = document.getElementById("optBtn");
       const signUpBtn = document.getElementById("signUpBtn");
@@ -665,10 +566,7 @@
       if (signUpBtn) signUpBtn.addEventListener("click", signUp);
       if (signInBtn) signInBtn.addEventListener("click", signIn);
       if (loadHistoryBtn) loadHistoryBtn.addEventListener("click", loadAnalyses);
-    }
 
-    document.addEventListener("DOMContentLoaded", () => {
-      bindUI();
       loadAnalyses();
     });
   </script>
