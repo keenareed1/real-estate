@@ -5,135 +5,435 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI Fintech Engine</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #0b1020;
-      color: #fff;
-      margin: 0;
-      padding: 40px;
+    :root {
+      --bg: #060b1a;
+      --panel: #0d1530;
+      --panel-2: #101a3b;
+      --border: #26345f;
+      --text: #f4f7ff;
+      --muted: #a9b4d0;
+      --accent: #4c8dff;
+      --accent-2: #6aa7ff;
+      --danger: #ff6b6b;
+      --success: #3ddc97;
+      --warning: #ffcc66;
+      --shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+      --radius: 16px;
     }
-    .card {
-      max-width: 760px;
-      margin: 0 auto;
-      background: #151c33;
-      padding: 24px;
-      border-radius: 16px;
-      box-shadow: 0 8px 24px rgba(0,0,0,.25);
-    }
-    h1 {
-      margin-top: 0;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-    input, select, button, textarea {
-      width: 100%;
-      padding: 10px;
-      border-radius: 10px;
-      border: 1px solid #2c355a;
-      background: #0f1530;
-      color: #fff;
+
+    * {
       box-sizing: border-box;
     }
-    button {
-      background: #3b82f6;
-      border: none;
-      cursor: pointer;
-      font-weight: bold;
-      margin-top: 16px;
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(180deg, #050914 0%, #081127 100%);
+      color: var(--text);
+      padding: 24px;
     }
-    pre {
-      background: #0f1530;
-      padding: 16px;
-      border-radius: 12px;
-      overflow: auto;
-      white-space: pre-wrap;
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
     }
+
+    .hero {
+      margin-bottom: 24px;
+    }
+
+    .hero h1 {
+      margin: 0 0 8px 0;
+      font-size: 36px;
+      line-height: 1.1;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .section {
+      background: rgba(13, 21, 48, 0.92);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .section h2 {
+      margin: 0 0 16px 0;
+      font-size: 20px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
     .full {
       grid-column: 1 / -1;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    input,
+    select,
+    textarea,
+    button {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #0a1230;
+      color: var(--text);
+      padding: 12px 14px;
+      font-size: 15px;
+      outline: none;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--accent-2);
+      box-shadow: 0 0 0 3px rgba(76, 141, 255, 0.16);
+    }
+
+    button {
+      background: linear-gradient(180deg, var(--accent-2), var(--accent));
+      border: none;
+      cursor: pointer;
+      font-weight: 700;
+      transition: transform 0.05s ease, opacity 0.2s ease;
+    }
+
+    button:hover {
+      opacity: 0.96;
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    .secondary-btn {
+      background: #12204c;
+      border: 1px solid var(--border);
+    }
+
+    .output,
+    pre {
+      background: #09112a;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      color: #eaf0ff;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      min-height: 56px;
+    }
+
+    .pill-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      background: #101b40;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      background: #09112a;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .card h3 {
+      margin: 0 0 8px 0;
+      font-size: 16px;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .good {
+      color: var(--success);
+      font-weight: 700;
+    }
+
+    .warn {
+      color: var(--warning);
+      font-weight: 700;
+    }
+
+    .bad {
+      color: var(--danger);
+      font-weight: 700;
+    }
+
+    .history-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .history-item {
+      background: #09112a;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .history-item strong {
+      font-size: 15px;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar button {
+      width: auto;
+      min-width: 140px;
+    }
+
+    .small {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    @media (max-width: 900px) {
+      .grid,
+      .grid-3,
+      .cards {
+        grid-template-columns: 1fr;
+      }
+
+      body {
+        padding: 14px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>AI Fintech Engine</h1>
-    <p>Test your live full-analysis API.</p>
+  <div class="container">
+    <div class="hero">
+      <h1>AI Fintech Engine</h1>
+      <p>Analyze opportunities, optimize capital, explain recommendations, and review saved history.</p>
+    </div>
 
-    <div class="grid">
-      <div>
-        <label>Risk Tolerance</label>
-        <select id="riskTolerance">
-          <option value="low">low</option>
-          <option value="moderate" selected>moderate</option>
-          <option value="high">high</option>
-        </select>
+    <div class="section">
+      <h2>Platform Status</h2>
+      <div class="pill-row">
+        <div class="pill">Frontend: Live</div>
+        <div class="pill">Backend: Render</div>
+        <div class="pill">Database: Supabase</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Login</h2>
+      <div class="grid">
+        <div>
+          <label for="email">Email</label>
+          <input id="email" type="email" placeholder="Email" />
+        </div>
+        <div>
+          <label for="password">Password</label>
+          <input id="password" type="password" placeholder="Password" />
+        </div>
+        <div>
+          <button id="signUpBtn">Sign Up</button>
+        </div>
+        <div>
+          <button id="signInBtn">Login</button>
+        </div>
+        <div class="full">
+          <div id="authOutput" class="output">Auth status will appear here.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Full Opportunity Analysis</h2>
+      <div class="grid-3">
+        <div>
+          <label for="riskTolerance">Risk Tolerance</label>
+          <select id="riskTolerance">
+            <option value="low">low</option>
+            <option value="moderate" selected>moderate</option>
+            <option value="high">high</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="availableCapital">Available Capital</label>
+          <input id="availableCapital" type="number" value="25000" />
+        </div>
+
+        <div>
+          <label for="investmentAmount">Investment Amount</label>
+          <input id="investmentAmount" type="number" value="8000" />
+        </div>
+
+        <div>
+          <label for="assetType">Asset Type</label>
+          <select id="assetType">
+            <option value="stock" selected>stock</option>
+            <option value="real-estate">real-estate</option>
+            <option value="crypto">crypto</option>
+            <option value="other">other</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="expectedReturn">Expected Return (%)</label>
+          <input id="expectedReturn" type="number" value="18" />
+        </div>
+
+        <div>
+          <label for="riskLevel">Opportunity Risk Level</label>
+          <select id="riskLevel">
+            <option value="low">low</option>
+            <option value="moderate" selected>moderate</option>
+            <option value="high">high</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="timeHorizon">Time Horizon</label>
+          <select id="timeHorizon">
+            <option value="short">short</option>
+            <option value="medium">medium</option>
+            <option value="long" selected>long</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="liquidity">Liquidity</label>
+          <select id="liquidity">
+            <option value="low">low</option>
+            <option value="medium">medium</option>
+            <option value="high" selected>high</option>
+          </select>
+        </div>
+
+        <div class="full toolbar">
+          <button id="runAnalysisBtn">Run Full Analysis</button>
+          <button id="loadHistoryBtn" class="secondary-btn">Load Saved Analyses</button>
+        </div>
       </div>
 
-      <div>
-        <label>Available Capital</label>
-        <input id="availableCapital" type="number" value="25000" />
+      <div class="cards" style="margin-top:16px;">
+        <div class="card">
+          <h3>Summary</h3>
+          <div id="summaryOutput" class="output">Waiting...</div>
+        </div>
+        <div class="card">
+          <h3>Final Recommendation</h3>
+          <div id="finalRecommendationOutput" class="output">Waiting...</div>
+        </div>
+        <div class="card">
+          <h3>Analysis</h3>
+          <div id="analysisOutput" class="output">Waiting...</div>
+        </div>
+        <div class="card">
+          <h3>Risk</h3>
+          <div id="riskOutput" class="output">Waiting...</div>
+        </div>
+        <div class="card full">
+          <h3>Raw Response</h3>
+          <pre id="fullAnalysisRaw">Waiting...</pre>
+        </div>
       </div>
+    </div>
 
-      <div>
-        <label>Asset Type</label>
-        <select id="assetType">
-          <option value="stock" selected>stock</option>
-          <option value="real-estate">real-estate</option>
-        </select>
+    <div class="section">
+      <h2>Portfolio Optimizer</h2>
+      <div class="grid">
+        <div>
+          <label for="capital">Total Capital</label>
+          <input id="capital" type="number" value="50000" />
+        </div>
+        <div style="display:flex;align-items:end;">
+          <button id="optBtn">Optimize Portfolio</button>
+        </div>
+        <div class="full">
+          <div id="optimizerOutput" class="output">Waiting...</div>
+        </div>
       </div>
+    </div>
 
-      <div>
-        <label>Expected Return (%)</label>
-        <input id="expectedReturn" type="number" value="18" />
-      </div>
-
-      <div>
-        <label>Risk Level</label>
-        <select id="riskLevel">
-          <option value="low">low</option>
-          <option value="moderate" selected>moderate</option>
-          <option value="high">high</option>
-        </select>
-      </div>
-
-      <div>
-        <label>Time Horizon</label>
-        <select id="timeHorizon">
-          <option value="short">short</option>
-          <option value="medium">medium</option>
-          <option value="long" selected>long</option>
-        </select>
-      </div>
-
-      <div>
-        <label>Liquidity</label>
-        <select id="liquidity">
-          <option value="low">low</option>
-          <option value="medium">medium</option>
-          <option value="high" selected>high</option>
-        </select>
-      </div>
-
-      <div>
-        <label>Investment Amount</label>
-        <input id="investmentAmount" type="number" value="8000" />
-      </div>
-
-      <div class="full">
-        <button onclick="runAnalysis()">Run Full Analysis</button>
-      </div>
-
-      <div class="full">
-        <h3>Response</h3>
-        <pre id="output">Waiting...</pre>
+    <div class="section">
+      <h2>Saved Analysis History</h2>
+      <div id="history" class="history-list">
+        <div class="small">No history loaded yet.</div>
       </div>
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    const API_URL = "https://real-estate-app-mt07.onrender.com/full-analysis";
+    const FULL_ANALYSIS_URL = "https://real-estate-app-mt07.onrender.com/full-analysis";
+    const OPTIMIZER_URL = "https://real-estate-app-mt07.onrender.com/portfolio-optimize";
+    const ANALYSES_URL = "https://real-estate-app-mt07.onrender.com/analyses";
+
+    // Replace these 2 values if you want auth to work.
+    const SUPABASE_URL = "https://YOUR_PROJECT_ID.supabase.co";
+    const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+
+    let supabase = null;
+    try {
+      if (
+        window.supabase &&
+        SUPABASE_URL.startsWith("https://") &&
+        !SUPABASE_URL.includes("dgfjvcgctrafhkutsngk") &&
+        SUPABASE_ANON_KEY &&
+        !SUPABASE_ANON_KEY.includes("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRnZmp2Y2djdHJhZmhrdXRzbmdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MDMwODgsImV4cCI6MjA5MjM3OTA4OH0.B77DJAaeQqLMz3N1FhAqwldWswWWMIFXOAtBc6sW8lY")
+      ) {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      }
+    } catch (err) {
+      console.error("Supabase init error:", err);
+    }
+
+    function setText(id, value) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = value;
+    }
+
+    function setHTML(id, value) {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = value;
+    }
 
     async function runAnalysis() {
       const payload = {
@@ -151,11 +451,14 @@
         }
       };
 
-      const output = document.getElementById("output");
-      output.textContent = "Running...";
+      setText("summaryOutput", "Running...");
+      setText("finalRecommendationOutput", "Running...");
+      setText("analysisOutput", "Running...");
+      setText("riskOutput", "Running...");
+      setText("fullAnalysisRaw", "Running...");
 
       try {
-        const res = await fetch(API_URL, {
+        const res = await fetch(FULL_ANALYSIS_URL, {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
@@ -164,94 +467,210 @@
         });
 
         const data = await res.json();
-        output.textContent = JSON.stringify(data, null, 2);
+
+        if (!res.ok) {
+          throw new Error(data.message || "Analysis request failed");
+        }
+
+        setText(
+          "summaryOutput",
+          data.explanation?.summary || "No summary returned."
+        );
+
+        const finalRec = data.finalRecommendation || "N/A";
+        const recClass =
+          finalRec === "STRONG BUY" || finalRec === "BUY"
+            ? "good"
+            : finalRec === "WATCH" || finalRec === "CAUTION"
+            ? "warn"
+            : "bad";
+
+        setHTML(
+          "finalRecommendationOutput",
+          `<span class="${recClass}">${finalRec}</span>`
+        );
+
+        setHTML(
+          "analysisOutput",
+          `
+          Score: ${data.analysis?.score ?? "N/A"}<br/>
+          Confidence: ${data.analysis?.confidence ?? "N/A"}%<br/>
+          Recommendation: ${data.analysis?.recommendation ?? "N/A"}<br/>
+          Drivers: ${(data.analysis?.reasoning || []).join(", ")}
+          `
+        );
+
+        setHTML(
+          "riskOutput",
+          `
+          Decision: ${data.risk?.decision ?? "N/A"}<br/>
+          Approved: ${String(data.risk?.approved)}<br/>
+          Exposure: ${data.risk?.exposurePercent ?? "N/A"}%<br/>
+          Flags: ${(data.risk?.flags || []).length ? data.risk.flags.join(", ") : "None"}
+          `
+        );
+
+        setText("fullAnalysisRaw", JSON.stringify(data, null, 2));
+      } catch (err) {
+        console.error("runAnalysis error:", err);
+        const msg = "Error: " + err.message;
+        setText("summaryOutput", msg);
+        setText("finalRecommendationOutput", msg);
+        setText("analysisOutput", msg);
+        setText("riskOutput", msg);
+        setText("fullAnalysisRaw", msg);
+      }
+    }
+
+    async function runOptimizer() {
+      console.log("clicked optimizer");
+
+      const capital = Number(document.getElementById("capital").value);
+
+      const payload = {
+        capital,
+        opportunities: [
+          { assetType: "stock", expectedReturn: 18, riskLevel: "moderate" },
+          { assetType: "real-estate", expectedReturn: 12, riskLevel: "low" },
+          { assetType: "crypto", expectedReturn: 25, riskLevel: "high" }
+        ]
+      };
+
+      setText("optimizerOutput", "Running...");
+
+      try {
+        const res = await fetch(OPTIMIZER_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.message || "Optimizer request failed");
+        }
+
+        if (!data.allocation || !data.allocation.length) {
+          setText("optimizerOutput", "No allocation data returned.");
+          return;
+        }
+
+        setHTML(
+          "optimizerOutput",
+          data.allocation
+            .map(
+              item => `
+              <div class="history-item">
+                <strong>${item.asset}</strong><br/>
+                Allocation: $${item.allocation}<br/>
+                Score: ${Number(item.score).toFixed(2)}
+              </div>
+            `
+            )
+            .join("")
+        );
+      } catch (err) {
+        console.error("optimizer error:", err);
+        setText("optimizerOutput", "Error: " + err.message);
+      }
+    }
+
+    async function loadAnalyses() {
+      const container = document.getElementById("history");
+      container.innerHTML = `<div class="small">Loading...</div>`;
+
+      try {
+        const res = await fetch(ANALYSES_URL);
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.message || "Failed to fetch analyses");
+        }
+
+        if (!Array.isArray(data) || data.length === 0) {
+          container.innerHTML = `<div class="small">No saved analyses yet.</div>`;
+          return;
+        }
+
+        container.innerHTML = data
+          .map(
+            item => `
+            <div class="history-item">
+              <strong>${item.asset_type || "unknown asset"}</strong><br/>
+              Return: ${item.expected_return ?? "N/A"}%<br/>
+              Risk: ${item.risk_level ?? "N/A"}<br/>
+              Recommendation: <b>${item.recommendation ?? "N/A"}</b><br/>
+              Confidence: ${item.confidence ?? "N/A"}%<br/>
+              Final: ${item.final_recommendation ?? "N/A"}
+            </div>
+          `
+          )
+          .join("");
+      } catch (err) {
+        console.error("loadAnalyses error:", err);
+        container.innerHTML = `<div class="small">Error: ${err.message}</div>`;
+      }
+    }
+
+    async function signUp() {
+      const output = document.getElementById("authOutput");
+
+      if (!supabase) {
+        output.textContent = "Supabase auth is not configured yet.";
+        return;
+      }
+
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      try {
+        const { error } = await supabase.auth.signUp({ email, password });
+        output.textContent = error ? error.message : "Signed up successfully.";
       } catch (err) {
         output.textContent = "Error: " + err.message;
       }
     }
+
+    async function signIn() {
+      const output = document.getElementById("authOutput");
+
+      if (!supabase) {
+        output.textContent = "Supabase auth is not configured yet.";
+        return;
+      }
+
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      try {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        output.textContent = error ? error.message : "Logged in successfully.";
+      } catch (err) {
+        output.textContent = "Error: " + err.message;
+      }
+    }
+
+    function bindUI() {
+      const runAnalysisBtn = document.getElementById("runAnalysisBtn");
+      const optBtn = document.getElementById("optBtn");
+      const signUpBtn = document.getElementById("signUpBtn");
+      const signInBtn = document.getElementById("signInBtn");
+      const loadHistoryBtn = document.getElementById("loadHistoryBtn");
+
+      if (runAnalysisBtn) runAnalysisBtn.addEventListener("click", runAnalysis);
+      if (optBtn) optBtn.addEventListener("click", runOptimizer);
+      if (signUpBtn) signUpBtn.addEventListener("click", signUp);
+      if (signInBtn) signInBtn.addEventListener("click", signIn);
+      if (loadHistoryBtn) loadHistoryBtn.addEventListener("click", loadAnalyses);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      bindUI();
+      loadAnalyses();
+    });
   </script>
 </body>
 </html>
-async function loadAnalyses() {
-  const res = await fetch("https://real-estate-app-mt07.onrender.com/analyses");
-  const data = await res.json();
-
-  const container = document.getElementById("history");
-  container.innerHTML = "";
-
-  data.forEach(item => {
-    const card = document.createElement("div");
-    card.style.border = "1px solid #ccc";
-    card.style.padding = "10px";
-    card.style.margin = "10px";
-
-    card.innerHTML = `
-      <strong>${item.asset_type}</strong><br/>
-      Return: ${item.expected_return}%<br/>
-      Risk: ${item.risk_level}<br/>
-      Recommendation: <b>${item.recommendation}</b><br/>
-      Confidence: ${item.confidence}%
-    `;
-async function runOptimizer() {
-  const capital = Number(document.getElementById("capital").value);
-
-  const payload = {
-    capital,
-    opportunities: [
-      { assetType: "stock", expectedReturn: 18, riskLevel: "moderate" },
-      { assetType: "real-estate", expectedReturn: 12, riskLevel: "low" },
-      { assetType: "crypto", expectedReturn: 25, riskLevel: "high" }
-    ]
-  };
-
-  const output = document.getElementById("optimizerOutput");
-  output.textContent = "Running...";
-
-  try {
-    const res = await fetch("https://real-estate-app-mt07.onrender.com/portfolio-optimize", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(payload)
-    });
-
-    const data = await res.json();
-    output.textContent = JSON.stringify(data, null, 2);
-  } catch (err) {
-    output.textContent = "Error: " + err.message;
-  }
-}
-    container.appendChild(card);
-  });
-  <h2>Previous Analyses</h2>
-<div id="history"></div>
-<button onclick="loadAnalyses()">Load History</button>
-}
-<h2>Portfolio Optimizer</h2>
-
-<input id="capital" placeholder="Total Capital" />
-
-<button onclick="runOptimizer()">Optimize Portfolio</button>
-
-<pre id="optimizerOutput"></pre>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script>
-const supabase = window.supabase.createClient(
-  "https://YOUR_PROJECT_ID.supabase.co",
-  "YOUR_ANON_KEY"
-);
-</script>
-<h2>Login</h2>
-<input id="email" placeholder="Email" />
-<input id="password" type="password" placeholder="Password" />
-<button onclick="signUp()">Sign Up</button>
-<button onclick="signIn()">Login</button>
-<h2>Portfolio Optimizer</h2>
-
-<label>Total Capital</label>
-<input id="capital" type="number" value="50000" />
-
-<button onclick="runOptimizer()">Optimize Portfolio</button>
-
-<pre id="optimizerOutput">Waiting...</pre>
