@@ -177,16 +177,14 @@ app.post("/profile", async (req, res) => {
     timeHorizon = "medium",
     preferredAssets = []
   } = req.body;
-console.log("Saving profile:", profile);
-  const profile = {
-    name,
-    risk_tolerance: riskTolerance,
-    available_capital: availableCapital,
-    investment_goal: investmentGoal,
-    time_horizon: timeHorizon,
-    preferred_assets: preferredAssets
-  };
-
+const profile = {
+  name,
+  risk_tolerance: riskTolerance,
+  available_capital: availableCapital,
+  investment_goal: investmentGoal,
+  time_horizon: timeHorizon,
+  preferred_assets: preferredAssets
+};
   const { data, error } = await supabase
     .from("profiles")
     .insert([profile])
