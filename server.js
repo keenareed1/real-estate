@@ -1,98 +1,31 @@
 const { createClient } = require("@supabase/supabase-js");
 const express = require("express");
 const cors = require("cors");
-const supabase = createClient(
-  "https://dgfjvcgctrafhkutsngk.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRnZmp2Y2djdHJhZmhrdXRzbmdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MDMwODgsImV4cCI6MjA5MjM3OTA4OH0.B77DJAaeQqLMz3N1FhAqwldWswWWMIFXOAtBc6sW8lY"
-);
+
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 
+const supabase = createClient(
+  "https://dgfjvcgctrafhkutsngk.supabase.co",
+  "YOUR_SUPABASE_ANON_KEY"
+);
+
+// Root
 app.get("/", (req, res) => {
   res.send("Backend is working 🚀");
 });
 
-const PORT = process.env.PORT || 3000;
-app.post("/portfolio-optimize", (req, res) => {
-  const { capital, opportunities } = req.body;
-
-  if (!capital || !opportunities || !opportunities.length) {
-    return res.status(400).json({ message: "Missing capital or opportunities" });
-  }
-
-  const riskWeight = {
-    low: 1,
-    moderate: 2,
-    high: 3
-  };
-
-  // Score opportunities
-  const scored = opportunities.map(o => {
-    const score =
-      (o.expectedReturn || 0) /
-      (riskWeight[o.riskLevel] || 2);
-
-    return { ...o, score };
-  });
-
-  // Sort highest score first
-  scored.sort((a, b) => b.score - a.score);
-
-  // Allocate capital
-  const totalScore = scored.reduce((sum, o) => sum + o.score, 0);
-
-  const allocation = scored.map(o => ({
-    asset: o.assetType,
-    allocation: Math.round((o.score / totalScore) * capital),
-    score: o.score
-  }));
-
-  res.json({
-    strategy: "AI Optimized Allocation",
-    allocation
-  });
-});
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// Health
 app.get("/health", (req, res) => {
   res.json({
     status: "ok",
     service: "real-estate-app"
   });
 });
-app.get("/health", (req, res) => {
-  res.json({
-    status: "ok",
-    service: "real-estate-app"
-  });
-});
-app.post("/estimate-cost", (req, res) => {
-  const { squareFeet = 0, buildType = "standard" } = req.body;
 
-  let costPerSqFt = 150;
-  if (buildType === "premium") costPerSqFt = 220;
-  if (buildType === "luxury") costPerSqFt = 320;
-
-  const estimatedCost = squareFeet * costPerSqFt;
-
-  res.json({
-    squareFeet,
-    buildType,
-    costPerSqFt,
-    estimatedCost
-  });
-});
-app.get("/estimate-cost", (req, res) => {
-  res.json({
-    message: "Use POST for /estimate-cost",
-    example: {
-      squareFeet: 2000,
-      buildType: "premium"
-    }
-  });
-});
+// Estimate Cost
 app.post("/estimate-cost", (req, res) => {
   const { squareFeet = 0, buildType = "standard" } = req.body;
 
@@ -119,6 +52,8 @@ app.get("/estimate-cost", (req, res) => {
     }
   });
 });
+
+// Analyze Deal
 app.post("/analyze-deal", (req, res) => {
   const {
     purchasePrice = 0,
@@ -129,21 +64,16 @@ app.post("/analyze-deal", (req, res) => {
 
   const totalInvestment = purchasePrice + rehabCost;
   const annualRent = monthlyRent * 12;
-  const roi = totalInvestment > 0
-    ? ((annualRent / totalInvestment) * 100).toFixed(2)
-    : 0;
+  const roi =
+    totalInvestment > 0
+      ? ((annualRent / totalInvestment) * 100).toFixed(2)
+      : 0;
 
   const flipProfit = arv - totalInvestment;
 
   let recommendation = "PASS";
-
-  if (flipProfit > 30000 || roi > 10) {
-    recommendation = "BUY";
-  }
-
-  if (flipProfit > 60000 || roi > 15) {
-    recommendation = "STRONG BUY";
-  }
+  if (flipProfit > 30000 || roi > 10) recommendation = "BUY";
+  if (flipProfit > 60000 || roi > 15) recommendation = "STRONG BUY";
 
   res.json({
     purchasePrice,
@@ -157,6 +87,7 @@ app.post("/analyze-deal", (req, res) => {
     recommendation
   });
 });
+
 app.get("/analyze-deal", (req, res) => {
   res.json({
     message: "Use POST for /analyze-deal",
@@ -168,6 +99,8 @@ app.get("/analyze-deal", (req, res) => {
     }
   });
 });
+
+// Profile
 app.post("/profile", async (req, res) => {
   const {
     name = "",
@@ -177,14 +110,18 @@ app.post("/profile", async (req, res) => {
     timeHorizon = "medium",
     preferredAssets = []
   } = req.body;
-const profile = {
-  name,
-  risk_tolerance: riskTolerance,
-  available_capital: availableCapital,
-  investment_goal: investmentGoal,
-  time_horizon: timeHorizon,
-  preferred_assets: preferredAssets
-};
+
+  const profile = {
+    name,
+    risk_tolerance: riskTolerance,
+    available_capital: availableCapital,
+    investment_goal: investmentGoal,
+    time_horizon: timeHorizon,
+    preferred_assets: preferredAssets
+  };
+
+  console.log("Saving profile:", profile);
+
   const { data, error } = await supabase
     .from("profiles")
     .insert([profile])
@@ -216,12 +153,13 @@ app.get("/profile", (req, res) => {
     }
   });
 });
+
+// Portfolio Summary
 app.post("/portfolio-summary", (req, res) => {
   const {
     availableCapital = 0,
     riskTolerance = "moderate",
-    investmentGoal = "growth",
-    preferredAssets = []
+    investmentGoal = "growth"
   } = req.body;
 
   let allocation = {
@@ -230,7 +168,6 @@ app.post("/portfolio-summary", (req, res) => {
     cash: 0
   };
 
-  // Simple allocation logic (we’ll make this smarter later with AI bots)
   if (riskTolerance === "low") {
     allocation = { stocks: 30, realEstate: 20, cash: 50 };
   } else if (riskTolerance === "moderate") {
@@ -246,11 +183,9 @@ app.post("/portfolio-summary", (req, res) => {
   };
 
   let strategy = "Balanced growth";
-
   if (investmentGoal === "income") {
     strategy = "Cash-flow focused (dividends + rental income)";
   }
-
   if (investmentGoal === "aggressive") {
     strategy = "High growth (higher risk tolerance)";
   }
@@ -264,6 +199,7 @@ app.post("/portfolio-summary", (req, res) => {
     strategy
   });
 });
+
 app.get("/portfolio-summary", (req, res) => {
   res.json({
     message: "Use POST for /portfolio-summary",
@@ -275,20 +211,21 @@ app.get("/portfolio-summary", (req, res) => {
     }
   });
 });
+
+// Analyze Opportunity
 app.post("/analyze-opportunity", (req, res) => {
   const {
-    assetType = "stock",          // stock | real-estate | other
-    expectedReturn = 0,           // percent
-    riskLevel = "moderate",       // low | moderate | high
-    timeHorizon = "medium",       // short | medium | long
-    liquidity = "high"            // low | medium | high
+    assetType = "stock",
+    expectedReturn = 0,
+    riskLevel = "moderate",
+    timeHorizon = "medium",
+    liquidity = "high"
   } = req.body;
 
   let score = 0;
   let confidence = 50;
-  let reasoning = [];
+  const reasoning = [];
 
-  // Return scoring
   if (expectedReturn >= 20) {
     score += 3;
     confidence += 15;
@@ -306,7 +243,6 @@ app.post("/analyze-opportunity", (req, res) => {
     reasoning.push("Low expected return");
   }
 
-  // Risk scoring
   if (riskLevel === "low") {
     score += 2;
     confidence += 10;
@@ -320,7 +256,6 @@ app.post("/analyze-opportunity", (req, res) => {
     reasoning.push("High risk profile");
   }
 
-  // Time horizon scoring
   if (timeHorizon === "long") {
     score += 1;
     reasoning.push("Long-term opportunity");
@@ -329,7 +264,6 @@ app.post("/analyze-opportunity", (req, res) => {
     reasoning.push("Short-term uncertainty");
   }
 
-  // Liquidity scoring
   if (liquidity === "high") {
     score += 1;
     reasoning.push("High liquidity");
@@ -338,19 +272,13 @@ app.post("/analyze-opportunity", (req, res) => {
     reasoning.push("Low liquidity");
   }
 
-  // Asset-type nuance
-  if (assetType === "real-estate") {
-    reasoning.push("Real estate opportunity analyzed");
-  } else if (assetType === "stock") {
-    reasoning.push("Stock opportunity analyzed");
-  }
+  if (assetType === "real-estate") reasoning.push("Real estate opportunity analyzed");
+  if (assetType === "stock") reasoning.push("Stock opportunity analyzed");
 
   let recommendation = "PASS";
-
   if (score >= 5) recommendation = "STRONG BUY";
   else if (score >= 3) recommendation = "BUY";
   else if (score >= 1) recommendation = "WATCH";
-  else recommendation = "PASS";
 
   if (confidence > 95) confidence = 95;
   if (confidence < 5) confidence = 5;
@@ -367,64 +295,7 @@ app.post("/analyze-opportunity", (req, res) => {
     reasoning
   });
 });
-app.post("/analyze-opportunity", (req, res) => {
-  const {
-    assetType = "stock",
-    expectedReturn = 0,
-    riskLevel = "moderate",
-    timeHorizon = "medium",
-    liquidity = "high"
-  } = req.body;
 
-  let score = 0;
-  let confidence = 50;
-  let reasoning = [];
-
-  if (expectedReturn >= 20) {
-    score += 3;
-    confidence += 15;
-    reasoning.push("High expected return");
-  } else if (expectedReturn >= 10) {
-    score += 2;
-    confidence += 10;
-    reasoning.push("Solid expected return");
-  } else {
-    score -= 1;
-    reasoning.push("Low expected return");
-  }
-
-  if (riskLevel === "low") {
-    score += 2;
-    reasoning.push("Low risk");
-  } else if (riskLevel === "high") {
-    score -= 2;
-    confidence -= 10;
-    reasoning.push("High risk");
-  }
-
-  if (timeHorizon === "long") {
-    score += 1;
-    reasoning.push("Long-term upside");
-  }
-
-  if (liquidity === "high") {
-    score += 1;
-    reasoning.push("High liquidity");
-  }
-
-  let recommendation = "PASS";
-
-  if (score >= 5) recommendation = "STRONG BUY";
-  else if (score >= 3) recommendation = "BUY";
-  else if (score >= 1) recommendation = "WATCH";
-
-  res.json({
-    score,
-    confidence,
-    recommendation,
-    reasoning
-  });
-});
 app.get("/analyze-opportunity", (req, res) => {
   res.json({
     message: "Use POST for /analyze-opportunity",
@@ -437,6 +308,8 @@ app.get("/analyze-opportunity", (req, res) => {
     }
   });
 });
+
+// Bot Explain
 app.post("/bot-explain", (req, res) => {
   const {
     assetType = "opportunity",
@@ -448,43 +321,6 @@ app.post("/bot-explain", (req, res) => {
   let summary = `The AI bot reviewed this ${assetType} opportunity and rated it ${recommendation} with ${confidence}% confidence.`;
 
   let tone = "neutral";
-
-  if (recommendation === "STRONG BUY") {
-    tone = "bullish";
-  } else if (recommendation === "BUY") {
-    tone = "positive";
-  } else if (recommendation === "PASS") {
-    tone = "cautious";
-  }
-
-  const explanation = {
-    summary,
-    tone,
-    keyDrivers: reasoning,
-    nextAction:
-      recommendation === "STRONG BUY"
-        ? "Consider allocating capital soon if it fits your portfolio."
-        : recommendation === "BUY"
-        ? "This may be worth adding to your watchlist or entering gradually."
-        : recommendation === "WATCH"
-        ? "Monitor this opportunity for stronger confirmation."
-        : "Avoid committing capital until the fundamentals improve."
-  };
-
-  res.json(explanation);
-});
-app.post("/bot-explain", (req, res) => {
-  const {
-    assetType = "opportunity",
-    recommendation = "WATCH",
-    confidence = 50,
-    reasoning = []
-  } = req.body;
-
-  let summary = `The AI bot reviewed this ${assetType} opportunity and rated it ${recommendation} with ${confidence}% confidence.`;
-
-  let tone = "neutral";
-
   if (recommendation === "STRONG BUY") tone = "bullish";
   else if (recommendation === "BUY") tone = "positive";
   else if (recommendation === "PASS") tone = "cautious";
@@ -505,6 +341,7 @@ app.post("/bot-explain", (req, res) => {
 
   res.json(explanation);
 });
+
 app.get("/bot-explain", (req, res) => {
   res.json({
     message: "Use POST for /bot-explain",
@@ -521,6 +358,8 @@ app.get("/bot-explain", (req, res) => {
     }
   });
 });
+
+// Risk Check
 app.post("/risk-check", (req, res) => {
   const {
     userProfile = {},
@@ -539,9 +378,8 @@ app.post("/risk-check", (req, res) => {
   } = opportunity;
 
   let approved = true;
-  let flags = [];
+  const flags = [];
 
-  // Risk tolerance vs opportunity risk
   if (riskTolerance === "low" && riskLevel === "high") {
     approved = false;
     flags.push("High-risk opportunity does not match low-risk profile");
@@ -551,10 +389,8 @@ app.post("/risk-check", (req, res) => {
     flags.push("Risk level is higher than preferred");
   }
 
-  // Capital exposure check
-  const exposurePercent = availableCapital > 0
-    ? (investmentAmount / availableCapital) * 100
-    : 0;
+  const exposurePercent =
+    availableCapital > 0 ? (investmentAmount / availableCapital) * 100 : 0;
 
   if (exposurePercent > 50) {
     approved = false;
@@ -563,19 +399,13 @@ app.post("/risk-check", (req, res) => {
     flags.push("High capital exposure");
   }
 
-  // Return sanity check
   if (expectedReturn > 50) {
     flags.push("Unusually high return — verify assumptions");
   }
 
-  // Final decision
   let decision = "APPROVED";
-
-  if (!approved) {
-    decision = "BLOCKED";
-  } else if (flags.length > 0) {
-    decision = "CAUTION";
-  }
+  if (!approved) decision = "BLOCKED";
+  else if (flags.length > 0) decision = "CAUTION";
 
   res.json({
     decision,
@@ -584,69 +414,7 @@ app.post("/risk-check", (req, res) => {
     flags
   });
 });
-app.post("/risk-check", (req, res) => {
-  const {
-    userProfile = {},
-    opportunity = {}
-  } = req.body;
 
-  const {
-    riskTolerance = "moderate",
-    availableCapital = 0
-  } = userProfile;
-
-  const {
-    riskLevel = "moderate",
-    expectedReturn = 0,
-    investmentAmount = 0
-  } = opportunity;
-
-  let approved = true;
-  let flags = [];
-
-  // Risk tolerance vs opportunity risk
-  if (riskTolerance === "low" && riskLevel === "high") {
-    approved = false;
-    flags.push("High-risk opportunity does not match low-risk profile");
-  }
-
-  if (riskTolerance === "moderate" && riskLevel === "high") {
-    flags.push("Risk level is higher than preferred");
-  }
-
-  // Capital exposure check
-  const exposurePercent = availableCapital > 0
-    ? (investmentAmount / availableCapital) * 100
-    : 0;
-
-  if (exposurePercent > 50) {
-    approved = false;
-    flags.push("Too much capital allocated to a single opportunity");
-  } else if (exposurePercent > 25) {
-    flags.push("High capital exposure");
-  }
-
-  // Return sanity check
-  if (expectedReturn > 50) {
-    flags.push("Unusually high return — verify assumptions");
-  }
-
-  // Final decision
-  let decision = "APPROVED";
-
-  if (!approved) {
-    decision = "BLOCKED";
-  } else if (flags.length > 0) {
-    decision = "CAUTION";
-  }
-
-  res.json({
-    decision,
-    approved,
-    exposurePercent: Number(exposurePercent.toFixed(2)),
-    flags
-  });
-});
 app.get("/risk-check", (req, res) => {
   res.json({
     message: "Use POST for /risk-check",
@@ -663,6 +431,8 @@ app.get("/risk-check", (req, res) => {
     }
   });
 });
+
+// Full Analysis
 app.post("/full-analysis", async (req, res) => {
   const {
     userProfile = {},
@@ -685,7 +455,7 @@ app.post("/full-analysis", async (req, res) => {
 
   let score = 0;
   let confidence = 50;
-  let reasoning = [];
+  const reasoning = [];
 
   if (expectedReturn >= 20) {
     score += 3;
@@ -744,7 +514,7 @@ app.post("/full-analysis", async (req, res) => {
   if (confidence < 5) confidence = 5;
 
   let approved = true;
-  let flags = [];
+  const flags = [];
 
   if (riskTolerance === "low" && riskLevel === "high") {
     approved = false;
@@ -770,11 +540,8 @@ app.post("/full-analysis", async (req, res) => {
   }
 
   let riskDecision = "APPROVED";
-  if (!approved) {
-    riskDecision = "BLOCKED";
-  } else if (flags.length > 0) {
-    riskDecision = "CAUTION";
-  }
+  if (!approved) riskDecision = "BLOCKED";
+  else if (flags.length > 0) riskDecision = "CAUTION";
 
   let tone = "neutral";
   if (recommendation === "STRONG BUY") tone = "bullish";
@@ -867,14 +634,25 @@ app.get("/full-analysis", (req, res) => {
     }
   });
 });
+
+// Analyses history
 app.get("/analyses", async (req, res) => {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("analyses")
     .select("*")
     .order("id", { ascending: false });
 
+  if (error) {
+    return res.status(500).json({
+      message: "Failed to fetch analyses",
+      error
+    });
+  }
+
   res.json(data);
 });
+
+// Portfolio Optimizer
 app.post("/portfolio-optimize", (req, res) => {
   const { capital, opportunities } = req.body;
 
@@ -888,22 +666,16 @@ app.post("/portfolio-optimize", (req, res) => {
     high: 3
   };
 
-  // Score each opportunity
-  const scored = opportunities.map(o => {
-    const score =
-      (o.expectedReturn || 0) /
-      (riskWeight[o.riskLevel] || 2);
-
+  const scored = opportunities.map((o) => {
+    const score = (o.expectedReturn || 0) / (riskWeight[o.riskLevel] || 2);
     return { ...o, score };
   });
 
-  // Sort best → worst
   scored.sort((a, b) => b.score - a.score);
 
-  // Allocate capital (weighted)
   const totalScore = scored.reduce((sum, o) => sum + o.score, 0);
 
-  const allocation = scored.map(o => ({
+  const allocation = scored.map((o) => ({
     asset: o.assetType,
     allocation: Math.round((o.score / totalScore) * capital),
     score: o.score
@@ -913,4 +685,23 @@ app.post("/portfolio-optimize", (req, res) => {
     strategy: "AI Optimized Allocation",
     allocation
   });
+});
+
+app.get("/portfolio-optimize", (req, res) => {
+  res.json({
+    message: "Use POST for /portfolio-optimize",
+    example: {
+      capital: 50000,
+      opportunities: [
+        { assetType: "stock", expectedReturn: 18, riskLevel: "moderate" },
+        { assetType: "real-estate", expectedReturn: 12, riskLevel: "low" },
+        { assetType: "crypto", expectedReturn: 25, riskLevel: "high" }
+      ]
+    }
+  });
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
